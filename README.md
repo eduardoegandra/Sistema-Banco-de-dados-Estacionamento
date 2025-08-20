@@ -25,11 +25,11 @@ O objetivo é registrar, consultar e gerenciar informações de veículos e clie
    git clone https://github.com/eduardoegandra/Sistema-Banco-de-dados-Estacionamento.git
 2. Acesse a pasta do projeto
    ```bash
-cd Sistema-Banco-de-dados-Estacionamento
+   cd Sistema-Banco-de-dados-Estacionamento
 
 3. Execute o sistema
    ```bash
-python app.py
+   python app.py
 
 📌 Funcionalidades- Cadastro de veículos
 - Registro de entrada e saída
