@@ -1,0 +1,19 @@
+/estacionamento
+  /static
+    style.css
+  /templates
+    base.html
+    clientes.html
+    confirmar_saida.html
+    detalhes_estadia.html
+    editar_cliente.html
+    veiculos.html
+    vagas.html
+    estadias.html
+    historico_veiculo.html
+    index.html
+    veiculos_cliente.html
+    transacoes.html
+  app.py
+  database.py
+  banco.sql
