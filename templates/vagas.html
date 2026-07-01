@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Vagas{% endblock %}
+{% block content %}
+<h1 class="mb-4">Vagas</h1>
+
+<form class="row g-2 mb-4" method="get">
+    <div class="col-md-4">
+        <select class="form-select" name="status">
+            <option value="">Todos os status</option>
+            <option value="LIVRE" {% if status_filtro == 'LIVRE' %}selected{% endif %}>Livre</option>
+            <option value="OCUPADA" {% if status_filtro == 'OCUPADA' %}selected{% endif %}>Ocupada</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" name="tipo">
+            <option value="">Todos os tipos</option>
+            {% for tipo in tipos_vaga %}
+            <option value="{{ tipo.id }}" {% if request.args.get('tipo') == tipo.id|string %}selected{% endif %}>{{ tipo.descricao }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+    <div class="col-md-2">
+        <a href="{{ url_for('vagas') }}" class="btn btn-outline-secondary w-100">Limpar</a>
+    </div>
+</form>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Número</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                    <th>Veículo</th>
+                    <th>Tempo Ocupada</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vaga in vagas %}
+                <tr>
+                    <td>{{ vaga.numero }}</td>
+                    <td>{{ vaga.tipo }}</td>
+                    <td>
+                        <span class="{{ 'status-livre' if vaga.status == 'LIVRE' else 'status-ocupada' }}">
+                            {{ vaga.status }}
+                        </span>
+                    </td>
+                    <td>{{ vaga.veiculo_info }}</td>
+                    <td>{{ vaga.tempo_ocupacao }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">Nenhuma vaga encontrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

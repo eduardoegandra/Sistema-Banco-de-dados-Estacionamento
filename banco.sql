@@ -208,9 +208,4 @@ INSERT INTO Transacao (estadia_id, valor, data, tipo_transacao) VALUES
 (1, 22.50, '2023-11-01', 'Pagamento'),
 (1, 5.00, '2023-11-01', 'Taxa Serviço'),
 (3, 48.75, '2023-11-02', 'Pagamento'),
-(3, 2.50, '2023-11-02', 'Taxa Serviço'),
-(4, 65.20, '2023-11-02', 'Pagamento'),
-(5, 19.50, '2023-11-02', 'Pagamento'),
-(6, 20.25, '2023-11-02', 'Pagamento'),
-(7, 85.00, '2023-11-03', 'Pagamento'),
-(7, 5.00, '2023-11-03', 'Taxa Serviço');
+(3, 2.50, '2023-11-02', 'Taxa Serviço');

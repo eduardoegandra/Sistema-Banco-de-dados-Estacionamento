@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Início - Estacionamento{% endblock %}
+{% block content %}
+<h1 class="mb-4">Sistema de Gerenciamento de Estacionamento</h1>
+<div class="row g-3">
+    <div class="col-md-4">
+        <a href="{{ url_for('clientes') }}" class="text-decoration-none">
+            <div class="card home-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">👤 Clientes</h5>
+                    <p class="card-text text-muted">Consultar e editar clientes cadastrados.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('veiculos') }}" class="text-decoration-none">
+            <div class="card home-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">🚗 Veículos</h5>
+                    <p class="card-text text-muted">Consultar veículos e seus proprietários.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('vagas') }}" class="text-decoration-none">
+            <div class="card home-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">🅿️ Vagas</h5>
+                    <p class="card-text text-muted">Ver disponibilidade de vagas.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('estadias') }}" class="text-decoration-none">
+            <div class="card home-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">⏱️ Estadias</h5>
+                    <p class="card-text text-muted">Entradas, saídas e estadias em andamento.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('transacoes') }}" class="text-decoration-none">
+            <div class="card home-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">💰 Transações</h5>
+                    <p class="card-text text-muted">Histórico financeiro do estacionamento.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

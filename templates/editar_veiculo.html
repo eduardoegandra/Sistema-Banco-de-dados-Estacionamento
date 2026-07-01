@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Editar Veículo{% endblock %}
+{% block content %}
+<h1 class="mb-1">Editar Veículo</h1>
+<p class="text-muted mb-4">Proprietário: {{ veiculo.cliente_nome if veiculo else '-' }}</p>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Modelo</label>
+                <input type="text" class="form-control" name="modelo" value="{{ veiculo.modelo or '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Placa</label>
+                <input type="text" class="form-control" name="placa" value="{{ veiculo.placa or '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tipo de Veículo</label>
+                <select class="form-select" name="tipo_veiculo_id" required>
+                    {% for tipo in tipos_veiculo %}
+                    <option value="{{ tipo.id }}" {% if veiculo and veiculo.tipo_veiculo_id == tipo.id %}selected{% endif %}>
+                        {{ tipo.descricao }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="{{ url_for('veiculos') }}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

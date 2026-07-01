@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Estadias{% endblock %}
+{% block content %}
+<h1 class="mb-4">Estadias</h1>
+
+<form class="row g-2 mb-4" method="get">
+    <div class="col-md-4">
+        <select class="form-select" name="status">
+            <option value="">Todos os status</option>
+            <option value="andamento" {% if request.args.get('status') == 'andamento' %}selected{% endif %}>Em andamento</option>
+            <option value="concluida" {% if request.args.get('status') == 'concluida' %}selected{% endif %}>Concluída</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <input type="text" class="form-control" name="placa" placeholder="Buscar por placa" value="{{ request.args.get('placa', '') }}">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+    <div class="col-md-2">
+        <a href="{{ url_for('estadias') }}" class="btn btn-outline-secondary w-100">Limpar</a>
+    </div>
+</form>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Modelo</th>
+                    <th>Placa</th>
+                    <th>Vaga</th>
+                    <th>Entrada</th>
+                    <th>Saída</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for estadia in estadias %}
+                <tr>
+                    <td>{{ estadia.modelo }}</td>
+                    <td>{{ estadia.placa }}</td>
+                    <td>{{ estadia.vaga }}</td>
+                    <td>{{ estadia.entrada | format_datetime }}</td>
+                    <td>{{ estadia.saida | format_datetime }}</td>
+                    <td>{{ estadia.valor | format_currency }}</td>
+                    <td>{{ estadia.status }}</td>
+                    <td>
+                        <a href="{{ url_for('detalhes_estadia', estadia_id=estadia.id) }}" class="btn btn-sm btn-outline-primary">Detalhes</a>
+                        {% if estadia.status == 'Em andamento' %}
+                        <a href="{{ url_for('registrar_saida', estadia_id=estadia.id) }}" class="btn btn-sm btn-outline-danger">Registrar Saída</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">Nenhuma estadia encontrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

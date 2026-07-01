@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Clientes{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Clientes</h1>
+    <a href="{{ url_for('novo_cliente') }}" class="btn btn-success">+ Novo Cliente</a>
+</div>
+
+<form class="row g-2 mb-4" method="get">
+    <div class="col-md-4">
+        <input type="text" class="form-control" name="nome" placeholder="Buscar por nome" value="{{ request.args.get('nome', '') }}">
+    </div>
+    <div class="col-md-4">
+        <input type="text" class="form-control" name="cpf" placeholder="Buscar por CPF" value="{{ request.args.get('cpf', '') }}">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+    </div>
+    <div class="col-md-2">
+        <a href="{{ url_for('clientes') }}" class="btn btn-outline-secondary w-100">Limpar</a>
+    </div>
+</form>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>{{ cliente.nome }}</td>
+                    <td>{{ cliente.cpf }}</td>
+                    <td>{{ cliente.email or '-' }}</td>
+                    <td>{{ cliente.telefone or '-' }}</td>
+                    <td>
+                        <a href="{{ url_for('veiculos_cliente', cliente_id=cliente.id) }}" class="btn btn-sm btn-outline-primary">Veículos</a>
+                        <a href="{{ url_for('editar_cliente', id=cliente.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                        <form method="post" action="{{ url_for('excluir_cliente', id=cliente.id) }}" class="d-inline" onsubmit="return confirm('Excluir este cliente?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">Nenhum cliente encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Veículos{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Veículos</h1>
+    <a href="{{ url_for('novo_veiculo') }}" class="btn btn-success">+ Novo Veículo</a>
+</div>
+
+<form class="row g-2 mb-4" method="get">
+    <div class="col-md-4">
+        <input type="text" class="form-control" name="placa" placeholder="Buscar por placa" value="{{ request.args.get('placa', '') }}">
+    </div>
+    <div class="col-md-4">
+        <input type="text" class="form-control" name="cliente" placeholder="Buscar por proprietário" value="{{ request.args.get('cliente', '') }}">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+    </div>
+    <div class="col-md-2">
+        <a href="{{ url_for('veiculos') }}" class="btn btn-outline-secondary w-100">Limpar</a>
+    </div>
+</form>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Modelo</th>
+                    <th>Placa</th>
+                    <th>Proprietário</th>
+                    <th>Tipo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for veiculo in veiculos %}
+                <tr>
+                    <td>{{ veiculo.modelo }}</td>
+                    <td>{{ veiculo.placa }}</td>
+                    <td>{{ veiculo.cliente_nome }}</td>
+                    <td>{{ veiculo.tipo_veiculo }}</td>
+                    <td>
+                        <a href="{{ url_for('editar_veiculo', id=veiculo.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                        <a href="{{ url_for('historico_veiculo', veiculo_id=veiculo.id) }}" class="btn btn-sm btn-outline-primary">Histórico</a>
+                        <form method="post" action="{{ url_for('excluir_veiculo', id=veiculo.id) }}" class="d-inline" onsubmit="return confirm('Excluir este veículo?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">Nenhum veículo encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

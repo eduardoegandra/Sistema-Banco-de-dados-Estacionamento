@@ -1,5 +1,6 @@
 from flask import Flask, abort, flash, json, request, render_template, redirect, url_for
 from base_de_dados import get_db
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'senha'
@@ -66,6 +67,46 @@ def editar_cliente(id):
     cursor.close()
     db.close()
     return render_template('editar_cliente.html', cliente=cliente)
+
+# Rota para novo cliente
+@app.route('/clientes/novo', methods=['GET', 'POST'])
+def novo_cliente():
+    if request.method == 'POST':
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute(
+            "INSERT INTO Cliente (nome, cpf, email, telefone) VALUES (%s, %s, %s, %s)",
+            (
+                request.form['nome'],
+                request.form['cpf'],
+                request.form.get('email'),
+                request.form.get('telefone')
+            )
+        )
+        db.commit()
+        cursor.close()
+        db.close()
+        flash('Cliente cadastrado com sucesso!', 'success')
+        return redirect(url_for('clientes'))
+
+    return render_template('novo_cliente.html')
+
+# Rota para excluir cliente
+@app.route('/clientes/excluir/<int:id>', methods=['POST'])
+def excluir_cliente(id):
+    db = get_db()
+    cursor = db.cursor()
+    try:
+        cursor.execute("DELETE FROM Cliente WHERE id = %s", (id,))
+        db.commit()
+        flash('Cliente excluído com sucesso!', 'success')
+    except Exception as e:
+        db.rollback()
+        flash('Não foi possível excluir: este cliente possui veículos cadastrados.', 'danger')
+    finally:
+        cursor.close()
+        db.close()
+    return redirect(url_for('clientes'))
 
 # Rota para veículos do cliente
 @app.route('/clientes/<int:cliente_id>/veiculos')
@@ -149,6 +190,54 @@ def editar_veiculo(id):
         veiculo=veiculo,
         tipos_veiculo=tipos_veiculo
     )
+
+# Rota para novo veículo
+@app.route('/veiculos/novo', methods=['GET', 'POST'])
+def novo_veiculo():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        cursor.execute(
+            "INSERT INTO Veiculo (modelo, placa, tipo_veiculo_id, cliente_id) VALUES (%s, %s, %s, %s)",
+            (
+                request.form['modelo'],
+                request.form['placa'],
+                request.form['tipo_veiculo_id'],
+                request.form['cliente_id']
+            )
+        )
+        db.commit()
+        cursor.close()
+        db.close()
+        flash('Veículo cadastrado com sucesso!', 'success')
+        return redirect(url_for('veiculos'))
+
+    cursor.execute("SELECT * FROM TipoVeiculo")
+    tipos_veiculo = cursor.fetchall()
+    cursor.execute("SELECT id, nome FROM Cliente ORDER BY nome")
+    clientes = cursor.fetchall()
+    cursor.close()
+    db.close()
+
+    return render_template('novo_veiculo.html', tipos_veiculo=tipos_veiculo, clientes=clientes)
+
+# Rota para excluir veículo
+@app.route('/veiculos/excluir/<int:id>', methods=['POST'])
+def excluir_veiculo(id):
+    db = get_db()
+    cursor = db.cursor()
+    try:
+        cursor.execute("DELETE FROM Veiculo WHERE id = %s", (id,))
+        db.commit()
+        flash('Veículo excluído com sucesso!', 'success')
+    except Exception as e:
+        db.rollback()
+        flash('Não foi possível excluir: este veículo possui estadias registradas.', 'danger')
+    finally:
+        cursor.close()
+        db.close()
+    return redirect(url_for('veiculos'))
 
 # Rota para Veículos
 @app.route('/veiculos')
@@ -585,26 +674,11 @@ def format_time(value):
         return '-'
     return value.strftime('%H:%M')
 
-# Filtros para formatação
-from datetime import datetime
-
-@app.template_filter('format_datetime')
-def format_datetime(value):
-    if value is None:
-        return '-'
-    return value.strftime('%d/%m/%Y %H:%M')
-
 @app.template_filter('format_date')
 def format_date(value):
     if value is None:
         return '-'
     return value.strftime('%d/%m/%Y')
-
-@app.template_filter('format_currency')
-def format_currency(value):
-    if value is None:
-        return '-'
-    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 if __name__ == '__main__':
     app.run(debug=True)

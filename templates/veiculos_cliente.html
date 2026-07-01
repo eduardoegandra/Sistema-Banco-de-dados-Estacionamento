@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Veículos do Cliente{% endblock %}
+{% block content %}
+<h1 class="mb-1">Veículos de {{ cliente.nome if cliente else 'Cliente' }}</h1>
+<p class="mb-4"><a href="{{ url_for('clientes') }}">&larr; Voltar para clientes</a></p>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Modelo</th>
+                    <th>Placa</th>
+                    <th>Tipo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for veiculo in veiculos %}
+                <tr>
+                    <td>{{ veiculo.modelo }}</td>
+                    <td>{{ veiculo.placa }}</td>
+                    <td>{{ veiculo.tipo }}</td>
+                    <td>
+                        <a href="{{ url_for('editar_veiculo', id=veiculo.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                        <a href="{{ url_for('historico_veiculo', veiculo_id=veiculo.id) }}" class="btn btn-sm btn-outline-primary">Histórico</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">Nenhum veículo cadastrado para este cliente.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Confirmar Saída{% endblock %}
+{% block content %}
+<h1 class="mb-4">Confirmar Saída</h1>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Veículo:</strong> {{ estadia.modelo }} ({{ estadia.placa }})</p>
+        <p><strong>Vaga:</strong> {{ estadia.vaga_numero }}</p>
+        <p><strong>Entrada:</strong> {{ estadia.entrada | format_datetime }}</p>
+        <p><strong>Tempo decorrido:</strong> {{ horas }}h {{ minutos }}m</p>
+
+        <form method="post">
+            <button type="submit" class="btn btn-danger">Confirmar Saída</button>
+            <a href="{{ url_for('estadias') }}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

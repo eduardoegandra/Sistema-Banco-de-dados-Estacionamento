@@ -4,9 +4,10 @@ def get_db():
     conn = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='090306@Futebol',
+        password='dudu1605',
         database='trabalho_bd',
-        buffered=True
+        buffered=True,
+        charset='utf8mb4'
     )
     return conn
 

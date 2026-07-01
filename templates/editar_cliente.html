@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Editar Cliente{% endblock %}
+{% block content %}
+<h1 class="mb-4">Editar Cliente</h1>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Nome</label>
+                <input type="text" class="form-control" name="nome" value="{{ cliente.nome or '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">CPF</label>
+                <input type="text" class="form-control" name="cpf" value="{{ cliente.cpf or '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" value="{{ cliente.email or '' }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Telefone</label>
+                <input type="text" class="form-control" name="telefone" value="{{ cliente.telefone or '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="{{ url_for('clientes') }}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
