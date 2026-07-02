@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Registrar Entrada{% endblock %}
+{% block content %}
+<h1 class="mb-4">Registrar Entrada</h1>
+
+<div class="card">
+    <div class="card-body">
+        {% if not vagas_livres %}
+        <div class="alert alert-warning">Não há vagas livres no momento.</div>
+        {% endif %}
+
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Veículo</label>
+                <select class="form-select" name="veiculo_id" required>
+                    <option value="">Selecione o veículo...</option>
+                    {% for veiculo in veiculos %}
+                    <option value="{{ veiculo.id }}">{{ veiculo.modelo }} - {{ veiculo.placa }} ({{ veiculo.cliente_nome }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Vaga</label>
+                <select class="form-select" name="vaga_id" required {% if not vagas_livres %}disabled{% endif %}>
+                    <option value="">Selecione a vaga...</option>
+                    {% for vaga in vagas_livres %}
+                    <option value="{{ vaga.id }}">Vaga {{ vaga.numero }} ({{ vaga.tipo }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" {% if not vagas_livres %}disabled{% endif %}>Registrar Entrada</button>
+            <a href="{{ url_for('estadias') }}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

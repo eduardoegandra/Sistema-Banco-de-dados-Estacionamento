@@ -42,7 +42,6 @@ def editar_cliente(id):
     cursor = db.cursor(dictionary=True)
     
     if request.method == 'POST':
-        # Processar atualização
         cursor.execute(
             "UPDATE Cliente SET nome=%s, cpf=%s, email=%s, telefone=%s WHERE id=%s",
             (
@@ -58,7 +57,6 @@ def editar_cliente(id):
         db.close()
         return redirect(url_for('clientes'))
     
-    # Carregar dados do cliente para edição
     cursor.execute(
         "SELECT * FROM Cliente WHERE id = %s", 
         (id,)
@@ -114,7 +112,6 @@ def veiculos_cliente(cliente_id):
     db = get_db()
     cursor = db.cursor(dictionary=True)
     
-    # Buscar os veículos do cliente específico
     cursor.execute("""
         SELECT v.id, v.modelo, v.placa, tv.descricao as tipo 
         FROM Veiculo v
@@ -123,7 +120,6 @@ def veiculos_cliente(cliente_id):
     """, (cliente_id,))
     veiculos = cursor.fetchall()
     
-    # Buscar informações do cliente
     cursor.execute(
         "SELECT nome FROM Cliente WHERE id = %s", 
         (cliente_id,)
@@ -146,7 +142,6 @@ def editar_veiculo(id):
     cursor = db.cursor(dictionary=True)
     
     if request.method == 'POST':
-        # Processar atualização do veículo
         cursor.execute("""
         UPDATE Veiculo SET
             modelo = %s,
@@ -160,13 +155,11 @@ def editar_veiculo(id):
         id
     )
 )
-        veiculo = cursor.fetchone()
         db.commit()
         cursor.close()
         db.close()
         return redirect(url_for('veiculos'))
     
-    # Carregar dados do veículo para edição
     cursor.execute(
         """
         SELECT v.*, c.nome as cliente_nome
@@ -176,7 +169,6 @@ def editar_veiculo(id):
     """, (id,))
     veiculo = cursor.fetchone()
     
-    # Carregar tipos de veículo para o select
     cursor.execute(
         "SELECT * FROM TipoVeiculo"
     )
@@ -245,7 +237,6 @@ def veiculos():
     db = get_db()
     cursor = db.cursor(dictionary=True)
     
-    # Query base
     query = """
     SELECT
         v.id,
@@ -261,23 +252,19 @@ def veiculos():
     params = []
     conditions = []
     
-    # Filtro por placa
     placa = request.args.get('placa')
     if placa:
         conditions.append("v.placa LIKE %s")
         params.append(f"%{placa}%")
     
-    # Filtro por cliente (nome do proprietário)
     cliente = request.args.get('cliente')
     if cliente:
         conditions.append("c.nome LIKE %s")
         params.append(f"%{cliente}%")
     
-    # Adiciona WHERE se houver filtros
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
     
-    # Executa a query com os parâmetros
     cursor.execute(query, tuple(params))
     veiculos = cursor.fetchall()
     
@@ -295,7 +282,6 @@ def historico_veiculo(veiculo_id):
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
         
-        # Buscar veículo (usando nomes corretos das tabelas)
         cursor.execute("""
             SELECT v.*, c.nome as cliente_nome 
             FROM Veiculo v
@@ -307,7 +293,6 @@ def historico_veiculo(veiculo_id):
         if not veiculo_data:
             return "Veículo não encontrado", 404
         
-        # Buscar estadias (nome correto da tabela)
         cursor.execute("""
             SELECT vaga_id as vaga_numero, entrada, saida, valor 
             FROM Estadia 
@@ -316,7 +301,6 @@ def historico_veiculo(veiculo_id):
         """, (veiculo_id,))
         estadias_data = cursor.fetchall()
         
-        # Buscar transações (ajustando o JOIN)
         cursor.execute("""
             SELECT t.data, t.tipo_transacao, t.valor 
             FROM Transacao t
@@ -347,7 +331,6 @@ def vagas():
     db = get_db()
     cursor = db.cursor(dictionary=True)
     
-    # Query base
     query = """
     SELECT 
         v.id,
@@ -372,13 +355,11 @@ def vagas():
     
     params = []
     
-    # Filtro por status
     status = request.args.get('status')
     if status:
         query += " AND v.status = %s"
         params.append(status.upper())
     
-    # Filtro por tipo
     tipo = request.args.get('tipo')
     if tipo:
         query += " AND v.tipo_vaga_id = %s"
@@ -406,7 +387,6 @@ def estadias():
     db = get_db()
     cursor = db.cursor(dictionary=True)
     
-    # Query base
     query = """
     SELECT e.id, v.modelo, v.placa, g.numero as vaga, 
            e.entrada, e.saida, e.valor,
@@ -419,14 +399,12 @@ def estadias():
     
     params = []
     
-    # Filtro por status
     status = request.args.get('status')
     if status == 'andamento':
         query += " AND e.saida IS NULL"
     elif status == 'concluida':
         query += " AND e.saida IS NOT NULL"
     
-    # Filtro por placa
     placa = request.args.get('placa')
     if placa:
         query += " AND v.placa LIKE %s"
@@ -445,37 +423,45 @@ def estadias():
 # Rota para Registrar Entrada
 @app.route('/registrar_entrada', methods=['GET', 'POST'])
 def registrar_entrada():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
     if request.method == 'POST':
-        # Lógica para processar o formulário de entrada
         veiculo_id = request.form['veiculo_id']
         vaga_id = request.form['vaga_id']
-        estadia = request.form['estadia_id']
 
-        db = get_db()
-        cursor = db.cursor()
         cursor.execute(
             "INSERT INTO Estadia (veiculo_id, vaga_id, entrada) VALUES (%s, %s, NOW())",
             (veiculo_id, vaga_id)
         )
         db.commit()
-        
-        cursor.execute("""
-        SELECT e.*, v.modelo, v.placa, g.numero as vaga_numero
-        FROM Estadia e
-        JOIN Veiculo v ON e.veiculo_id = v.id
-        JOIN Vaga g ON e.vaga_id = g.id
-        WHERE e.id = %s AND e.saida IS NULL
-    """, (estadia.id,))
-    estadia = cursor.fetchone()
-    
-    if not estadia:
-        flash('Estadia não encontrada ou já finalizada', 'danger')
+
+        cursor.close()
+        db.close()
+        flash('Entrada registrada com sucesso!', 'success')
         return redirect(url_for('estadias'))
-    
+
+    cursor.execute("""
+        SELECT v.id, v.modelo, v.placa, c.nome as cliente_nome
+        FROM Veiculo v
+        JOIN Cliente c ON v.cliente_id = c.id
+        ORDER BY v.modelo
+    """)
+    veiculos = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT v.id, v.numero, tv.descricao as tipo
+        FROM Vaga v
+        JOIN TipoVaga tv ON v.tipo_vaga_id = tv.id
+        WHERE v.status = 'LIVRE'
+        ORDER BY v.numero
+    """)
+    vagas_livres = cursor.fetchall()
+
     cursor.close()
     db.close()
-        
-    return redirect(url_for('estadias'))
+
+    return render_template('registrar_entrada.html', veiculos=veiculos, vagas_livres=vagas_livres)
 
 
 #Rota de saida
@@ -486,7 +472,6 @@ def registrar_saida(estadia_id):
     
     if request.method == 'POST':
         try:
-            # Primeiro: Obter o tipo da vaga associada à estadia
             cursor.execute("""
                 SELECT v.tipo_vaga_id 
                 FROM Vaga v
@@ -499,34 +484,37 @@ def registrar_saida(estadia_id):
                 flash('Vaga não encontrada', 'danger')
                 return redirect(url_for('estadias'))
             
-            # Segundo: Calcular o valor baseado no tempo
+            # Calcula minutos decorridos e arredonda para hora cheia (mesmo que passe 1 minuto)
             cursor.execute("""
                 SELECT 
                     entrada,
-                    TIMESTAMPDIFF(HOUR, entrada, NOW()) as horas_decorridas
+                    TIMESTAMPDIFF(MINUTE, entrada, NOW()) as minutos_decorridos,
+                    CEIL(TIMESTAMPDIFF(MINUTE, entrada, NOW()) / 60.0) as horas_decorridas
                 FROM Estadia
                 WHERE id = %s
             """, (estadia_id,))
             tempo_estadia = cursor.fetchone()
+
+            # Garante no mínimo 1 hora cobrada
+            horas_cobradas = max(1, int(tempo_estadia['horas_decorridas']))
             
-            # Calcular o valor
-            if tempo_estadia['horas_decorridas'] > 12:
+            if horas_cobradas > 12:
                 cursor.execute("""
                     SELECT preco_diaria 
                     FROM TabelaPrecos 
                     WHERE tipo_vaga_id = %s
                 """, (tipo_vaga['tipo_vaga_id'],))
+                preco = cursor.fetchone()
+                valor = preco['preco_diaria']
             else:
                 cursor.execute("""
                     SELECT preco_hora 
                     FROM TabelaPrecos 
                     WHERE tipo_vaga_id = %s
                 """, (tipo_vaga['tipo_vaga_id'],))
+                preco = cursor.fetchone()
+                valor = preco['preco_hora'] * horas_cobradas
             
-            preco = cursor.fetchone()
-            valor = preco['preco_diaria'] if tempo_estadia['horas_decorridas'] > 12 else preco['preco_hora'] * tempo_estadia['horas_decorridas']
-            
-            # Terceiro: Atualizar a estadia
             cursor.execute("""
                 UPDATE Estadia 
                 SET saida = NOW(),
@@ -534,7 +522,6 @@ def registrar_saida(estadia_id):
                 WHERE id = %s
             """, (valor, estadia_id))
             
-            # Quarto: Atualizar o status da vaga
             cursor.execute("""
                 UPDATE Vaga v
                 JOIN Estadia e ON v.id = e.vaga_id
@@ -551,7 +538,6 @@ def registrar_saida(estadia_id):
             flash(f'Erro ao registrar saída: {str(e)}', 'danger')
             return redirect(url_for('estadias'))
     
-    # Código GET permanece o mesmo (para mostrar a página de confirmação)
     cursor.execute("""
         SELECT e.*, v.modelo, v.placa, g.numero as vaga_numero
         FROM Estadia e
@@ -584,7 +570,6 @@ def detalhes_estadia(estadia_id):
     db = get_db()
     cursor = db.cursor(dictionary=True)
     
-    # Buscar os detalhes da estadia
     cursor.execute("""
         SELECT e.*, v.modelo, v.placa, g.numero as vaga_numero, 
                c.nome as cliente_nome
@@ -597,7 +582,7 @@ def detalhes_estadia(estadia_id):
     estadia = cursor.fetchone()
     
     if not estadia:
-        abort(404)  # Retorna erro 404 se não encontrar a estadia
+        abort(404)
     
     cursor.close()
     db.close()
@@ -627,7 +612,6 @@ def transacoes():
     
     params = []
     
-    # Filtros
     data_inicio = request.args.get('data_inicio')
     data_fim = request.args.get('data_fim')
     placa = request.args.get('placa')
